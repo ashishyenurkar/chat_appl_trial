@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            min-height: 100vh;
+            background-color: silver;
+        }
+        #chat-content{
+           display: grid;
+            height: 300px;
+        }
+        #chat-content ul{
+            background-color: aquamarine;
+            height: 250px;
+            width: 600px;
+            margin: 20px;
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+    <h3 id="username">Socket.io chat example</h3>
+    <h3 id="user-connected"></h3>
+<div id="chat-content">
+    <ul id="chat-msg">
+        
+    </ul>
+</div>
+
+<form action="">
+    <input type="text" id="chat-text">
+    <select name="" id="user-list">
+        
+    </select>
+    <button onclick="submitform(event)">send</button>
+</form>
+
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+
+    const username = prompt("please enter your username")
+    socket.emit("register",{username});
+
+document.getElementById("username").innerText=`${username}'s chat window`
+
+socket.on("userlist",(data)=>{
+    
+   document.getElementById("user-list").innerHTML=data?.users.reduce(
+    (accumulator,element)=>{
+        return `${accumulator}<option value="${element}">${element}</option>`
+    },""
+   );
+   document.getElementById("user-connected").innerHTML=data?.users.length +"user";
+   console.log(data)
+});
+socket.on("chat text",(data)=>{
+    const li = document.createElement("li");
+    li.innerText=`${data?.fromUser}:${data?.chattext}`;
+
+    document.getElementById("chat-msg").append(li)
+        
+    })
+
+    function submitform(e){
+e.preventDefault();
+const chattext=document.getElementById("chat-text").value;
+const toUser = document.getElementById("user-list").value;
+socket.emit("chat text",{chattext,toUser ,fromUser:username});
+console.log(chattext,toUser)
+document.getElementById("chat-text").value="";
+
+const li = document.createElement("li");
+    li.innerText=`${username}:${chattext}`;
+
+    document.getElementById("chat-msg").append(li)
+    }
+</script>
+</body>
+</html>
